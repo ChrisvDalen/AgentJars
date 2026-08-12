@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${agent.displayName()})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <p class="breadcrumb">
+      <a th:href="@{/agents}">Agents</a> / <span th:text="${agent.displayName()}">Agent</span>
+    </p>
+
+    <div class="detail-head">
+      <div class="titles">
+        <h1 th:text="${agent.displayName()}">Agent</h1>
+        <p class="lede" th:text="${agent.description()}">Description</p>
+        <div class="meta">
+          <span class="tag" th:each="tagName : ${agent.tags()}" th:text="${tagName}">tag</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <h2>Add it to your build</h2>
+        <div class="snippet">
+          <div class="snippet-tabs" role="tablist">
+            <button th:each="tool, iter : ${buildTools}"
+                    type="button"
+                    role="tab"
+                    th:data-tool="${tool.id()}"
+                    th:attr="aria-selected=${iter.first}"
+                    th:text="${tool.label()}">Maven</button>
+          </div>
+          <pre th:each="tool, iter : ${buildTools}"
+               th:data-tool="${tool.id()}"
+               th:hidden="${!iter.first}"
+               th:text="${snippets.get(tool.id())}">snippet</pre>
+          <div class="copy-row"><button type="button" data-copy>copy</button></div>
+        </div>
+
+        <h2>Versions</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Version</th>
+              <th scope="col">Commit</th>
+              <th scope="col">Files</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="version : ${agent.versions()}">
+              <td class="path">
+                <a th:href="@{'/agents/' + ${agent.artifactId()}(version=${version.version()})}"
+                   th:text="${version.version()}">version</a>
+                <span class="tag" th:if="${version.version().equals(agent.latestVersion())}">latest</span>
+              </td>
+              <td class="path" th:text="${version.hasCommit()} ? ${version.commit()} : '—'">commit</td>
+              <td>
+                <a th:href="@{'/agents/' + ${agent.artifactId()} + '/' + ${version.version()} + '/files'}">
+                  browse
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 th:if="${agent.manifest() != null and !agent.manifest().tools().isEmpty()}">Expected tools</h2>
+        <p th:if="${agent.manifest() != null and !agent.manifest().tools().isEmpty()}">
+          The agent's instructions assume these tools are available to it:
+        </p>
+        <div class="tag-filter" th:if="${agent.manifest() != null and !agent.manifest().tools().isEmpty()}">
+          <span class="tag" th:each="tool : ${agent.manifest().tools()}" th:text="${tool}">tool</span>
+        </div>
+      </div>
+
+      <aside class="facts">
+        <dl>
+          <div>
+            <dt>Coordinates</dt>
+            <dd class="mono" th:text="${coordinates.toString()}">group:artifact:version</dd>
+          </div>
+          <div>
+            <dt>Selected version</dt>
+            <dd class="mono" th:text="${selectedVersion}">version</dd>
+          </div>
+          <div>
+            <dt>License</dt>
+            <dd th:text="${agent.license()}">Apache-2.0</dd>
+          </div>
+          <div th:if="${agent.manifest() != null and agent.manifest().model() != null}">
+            <dt>Suggested model</dt>
+            <dd th:text="${agent.manifest().model()}">reasoning</dd>
+          </div>
+          <div th:if="${agent.sourceRepo() != null}">
+            <dt>Source</dt>
+            <dd>
+              <a th:href="${agent.sourceUrl()}" rel="noopener" th:text="${agent.sourceRepo()}">org/repo</a>
+              <br>
+              <span class="mono" th:if="${agent.sourcePath() != null and !agent.sourcePath().isEmpty()}"
+                    th:text="${agent.sourcePath()}">path</span>
+            </dd>
+          </div>
+          <div>
+            <dt>Contents</dt>
+            <dd>
+              <a th:href="@{'/agents/' + ${agent.artifactId()} + '/' + ${selectedVersion} + '/files'}">
+                Files in this jar
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: snippet-script}"></script>
+</body>
+</html>

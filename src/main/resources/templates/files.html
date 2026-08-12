@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${agent.displayName()} + ' files')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <p class="breadcrumb">
+      <a th:href="@{/agents}">Agents</a> /
+      <a th:href="@{'/agents/' + ${agent.artifactId()}}" th:text="${agent.displayName()}">Agent</a> /
+      <span th:text="${selectedVersion}">version</span>
+    </p>
+
+    <h1>Files in this jar</h1>
+    <p class="lede mono" th:text="${coordinates.toString()}">group:artifact:version</p>
+
+    <p>
+      <a class="btn btn-secondary" th:href="${downloadUrl}" rel="noopener">Download the jar</a>
+    </p>
+
+    <div class="table-wrap" th:if="${!entries.isEmpty()}">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col" style="text-align:right">Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="entry : ${entries}" th:unless="${entry.directory()}">
+          <td class="path" th:text="${entry.path()}">path</td>
+          <td class="numeric" th:text="${entry.humanSize()}">0 B</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty" th:if="${entries.isEmpty()}">
+      <p>The contents of this jar could not be read.</p>
+      <p>
+        Either the version has not propagated to the repository yet, or this instance is running
+        without access to Maven Central.
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

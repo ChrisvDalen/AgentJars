@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Publish agents')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <div class="hero">
+      <h1>Publish agents from a repository</h1>
+      <p class="lede">
+        Point the registry at a public GitHub repository. Every directory containing an
+        <code>AGENT.md</code> is packaged into its own jar, versioned by the date and the commit it
+        was built from, and published under
+        <code th:text="${groupId}">com.agentjars</code>.
+      </p>
+    </div>
+
+    <div class="notice" th:unless="${deployEnabled}">
+      <p><strong>Publishing is turned off on this instance.</strong></p>
+      <p>Set <code>agentjars.deploy.enabled=true</code> to accept submissions.</p>
+    </div>
+
+    <form class="search" method="post" th:action="@{/deploy}">
+      <label class="visually-hidden" for="repository">GitHub repository</label>
+      <input type="text" class="field" id="repository" name="repository" th:value="${repository}"
+             placeholder="myorg/my-agents  or  https://github.com/myorg/my-agents" required>
+      <button class="btn" type="submit" th:disabled="${!deployEnabled}">Package</button>
+    </form>
+
+    <div class="notice error" th:if="${error}">
+      <p><strong>That repository could not be packaged.</strong></p>
+      <p th:text="${error}">reason</p>
+    </div>
+
+    <div th:if="${result}">
+      <div class="notice success" th:if="${!result.isEmpty()}">
+        <p>
+          <strong th:text="'Packaged ' + ${result.packaged().size()} + ' agent(s) from ' + ${result.repository()}">
+            Packaged agents
+          </strong>
+        </p>
+        <p class="mono" th:text="'commit ' + ${result.commit()}">commit</p>
+      </div>
+
+      <div class="notice" th:if="${result.isEmpty()}">
+        <p><strong>Nothing was published.</strong></p>
+        <p>Every agent found in the repository was skipped; the reasons are listed below.</p>
+      </div>
+
+      <div class="table-wrap" th:if="${!result.packaged().isEmpty()}">
+        <table>
+          <thead>
+          <tr>
+            <th scope="col">Agent</th>
+            <th scope="col">Coordinates</th>
+            <th scope="col">License</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="entry : ${result.packaged()}">
+            <td class="path" th:text="${entry.agentPath()}">agents/reviewer</td>
+            <td class="path" th:text="${entry.coordinates().toString()}">coordinates</td>
+            <td th:text="${entry.license()}">Apache-2.0</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div th:if="${!result.skipped().isEmpty()}">
+        <div class="section-head"><h2>Skipped</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Agent</th>
+              <th scope="col">Reason</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${result.skipped()}">
+              <td class="path" th:text="${entry.agentPath()}">agents/reviewer</td>
+              <td th:text="${entry.reason()}">reason</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="prose">
+      <h2>What the registry expects</h2>
+      <ul>
+        <li>The repository is public.</li>
+        <li>
+          Each agent lives in its own directory with an <code>AGENT.md</code> at its root. Agents
+          may sit at the repository root, under <code>agents/</code>, or nested further — but an
+          agent directory may not contain another agent directory.
+        </li>
+        <li>
+          Each agent resolves to a license: an SPDX identifier in the <code>AGENT.md</code> front
+          matter, a <code>LICENSE</code> file next to the agent, or one at the repository root.
+          Agents without a license are skipped rather than published, because Maven Central
+          requires one.
+        </li>
+      </ul>
+
+      <h2>Coordinates you will get</h2>
+      <p>
+        The artifactId is derived from the source so a coordinate always leads back to the code
+        that produced it: <code>&lt;org&gt;__&lt;repo&gt;__&lt;agent&gt;</code>, lowercased. An
+        agent at <code>agents/reviewer</code> in <code>myorg/my-agents</code> becomes
+        <code>myorg__my-agents__reviewer</code>.
+      </p>
+      <p>
+        The version is <code>YYYY_MM_DD-&lt;short-commit&gt;</code>. Publishing again from the same
+        commit on the same day is a no-op; publishing from a new commit produces a new version.
+      </p>
+      <p><a th:href="@{/docs}">Full documentation &rarr;</a></p>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

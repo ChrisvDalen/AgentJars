@@ -1,0 +1,119 @@
+[
+  {
+    "artifactId": "agentjars__example-agents__code-reviewer",
+    "name": "Code Reviewer",
+    "description": "Reviews a diff for correctness bugs, missing test coverage and needless complexity, then reports findings ranked by severity. Reaches for the repository's own conventions before applying generic style rules.",
+    "model": "reasoning",
+    "tools": ["read_file", "grep", "list_directory", "run_tests"],
+    "tags": ["review", "quality", "testing"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/example-agents",
+    "sourcePath": "agents/code-reviewer",
+    "versions": [
+      { "version": "2026_07_28-9c1f4ab", "published": "2026-07-28T09:14:00Z" },
+      { "version": "2026_06_11-4de20b7", "published": "2026-06-11T15:02:00Z" },
+      { "version": "2026_04_02-1aa77c3", "published": "2026-04-02T11:40:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__example-agents__release-notes",
+    "name": "Release Notes Writer",
+    "description": "Turns a commit range into release notes grouped by user-visible change, calling out breaking changes and migration steps. Skips refactors and dependency bumps unless they change behaviour.",
+    "model": "fast",
+    "tools": ["git_log", "read_file"],
+    "tags": ["release", "documentation", "changelog"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/example-agents",
+    "sourcePath": "agents/release-notes",
+    "versions": [
+      { "version": "2026_07_28-9c1f4ab", "published": "2026-07-28T09:14:00Z" },
+      { "version": "2026_05_19-8b3ce01", "published": "2026-05-19T08:25:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__example-agents__migration-planner",
+    "name": "Migration Planner",
+    "description": "Plans a framework or dependency upgrade: inventories the affected call sites, orders the work so the build stays green between steps, and flags changes that need a coordinated deploy.",
+    "model": "reasoning",
+    "tools": ["read_file", "grep", "list_directory", "dependency_tree"],
+    "tags": ["migration", "planning", "dependencies"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/example-agents",
+    "sourcePath": "agents/migration-planner",
+    "versions": [
+      { "version": "2026_07_28-9c1f4ab", "published": "2026-07-28T09:14:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__spring-agents__jpa-tuner",
+    "name": "JPA Query Tuner",
+    "description": "Diagnoses slow persistence layers: finds N+1 selects, missing fetch joins and unindexed predicates in JPA repositories, and proposes a fix with the query plan that justifies it.",
+    "model": "reasoning",
+    "tools": ["read_file", "grep", "explain_query"],
+    "tags": ["spring", "jpa", "performance", "database"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/spring-agents",
+    "sourcePath": "agents/jpa-tuner",
+    "versions": [
+      { "version": "2026_08_04-33ea9d0", "published": "2026-08-04T13:31:00Z" },
+      { "version": "2026_06_30-77b1c25", "published": "2026-06-30T10:05:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__spring-agents__endpoint-hardener",
+    "name": "Endpoint Hardener",
+    "description": "Audits HTTP endpoints against a security baseline: authentication on every route, input validation, output encoding, and no secrets in logs or error bodies. Reports each gap with the exact route it applies to.",
+    "model": "reasoning",
+    "tools": ["read_file", "grep", "list_routes"],
+    "tags": ["spring", "security", "api", "audit"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/spring-agents",
+    "sourcePath": "agents/endpoint-hardener",
+    "versions": [
+      { "version": "2026_08_04-33ea9d0", "published": "2026-08-04T13:31:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__ops-agents__incident-triage",
+    "name": "Incident Triage",
+    "description": "Takes an alert and the surrounding telemetry, narrows it to the failing component, and writes the timeline a responder needs. Stops at a hypothesis with supporting evidence rather than guessing at a fix.",
+    "model": "reasoning",
+    "tools": ["query_metrics", "read_logs", "list_deployments"],
+    "tags": ["operations", "observability", "incident"],
+    "license": "MIT",
+    "sourceRepo": "agentjars/ops-agents",
+    "sourcePath": "agents/incident-triage",
+    "versions": [
+      { "version": "2026_07_15-5f0a8e2", "published": "2026-07-15T07:48:00Z" },
+      { "version": "2026_03_21-c04d719", "published": "2026-03-21T16:12:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__ops-agents__manifest-reviewer",
+    "name": "Kubernetes Manifest Reviewer",
+    "description": "Reviews Kubernetes manifests, Helm charts and Kustomize overlays for insecure defaults, missing resource limits, overly permissive network policies and rollout settings that cannot survive a node drain.",
+    "model": "fast",
+    "tools": ["read_file", "list_directory"],
+    "tags": ["kubernetes", "platform", "security", "review"],
+    "license": "MIT",
+    "sourceRepo": "agentjars/ops-agents",
+    "sourcePath": "agents/manifest-reviewer",
+    "versions": [
+      { "version": "2026_07_15-5f0a8e2", "published": "2026-07-15T07:48:00Z" }
+    ]
+  },
+  {
+    "artifactId": "agentjars__data-agents__schema-archaeologist",
+    "name": "Schema Archaeologist",
+    "description": "Reconstructs the meaning of an undocumented database: infers entity relationships from constraints and query traffic, names the implicit domain concepts, and writes the glossary the team never had.",
+    "model": "reasoning",
+    "tools": ["describe_schema", "sample_rows", "read_file"],
+    "tags": ["data", "documentation", "domain-modelling"],
+    "license": "Apache-2.0",
+    "sourceRepo": "agentjars/data-agents",
+    "sourcePath": "agents/schema-archaeologist",
+    "versions": [
+      { "version": "2026_05_06-b8d4471", "published": "2026-05-06T12:00:00Z" }
+    ]
+  }
+]

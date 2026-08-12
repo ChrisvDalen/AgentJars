@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: agentjars
+  thymeleaf:
+    cache: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 1h
+
+server:
+  port: 8080
+  error:
+    include-message: always
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,application/javascript,application/json
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+agentjars:
+  group-id: com.agentjars
+  agents-root: META-INF/agents
+  maven-central:
+    enabled: true
+    search-url: https://search.maven.org/solrsearch/select
+    content-url: https://repo1.maven.org/maven2
+  cache:
+    catalog-ttl: PT1H
+    max-entries: 500
+  deploy:
+    enabled: true
+    max-agents: 50
+
+logging:
+  level:
+    com.agentjars: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  thymeleaf:
+    cache: false
+
+agentjars:
+  maven-central:
+    enabled: false
+
+logging:
+  level:
+    com.agentjars: DEBUG

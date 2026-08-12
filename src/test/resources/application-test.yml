@@ -1,0 +1,13 @@
+agentjars:
+  maven-central:
+    enabled: false
+  deploy:
+    enabled: true
+
+spring:
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    com.agentjars: WARN

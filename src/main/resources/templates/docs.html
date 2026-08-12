@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Documentation')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <div class="hero">
+      <h1>Documentation</h1>
+      <p class="lede">
+        AgentJars turns agent definitions into build artifacts. This page covers the file format,
+        the packaging rules, how to consume an agent and how the coordinates are derived.
+      </p>
+    </div>
+
+    <div class="toc">
+      <ol>
+        <li><a href="#format">The AGENT.md format</a></li>
+        <li><a href="#consuming">Consuming an agent</a></li>
+        <li><a href="#extracting">Extracting agents at runtime</a></li>
+        <li><a href="#publishing">Publishing your own</a></li>
+        <li><a href="#coordinates">Coordinates and versions</a></li>
+        <li><a href="#layout">What is inside a jar</a></li>
+        <li><a href="#api">HTTP API</a></li>
+      </ol>
+    </div>
+
+    <div class="prose">
+
+      <h2 id="format">The AGENT.md format</h2>
+      <p>
+        An agent is a directory containing an <code>AGENT.md</code>. The file opens with YAML front
+        matter describing the agent, followed by the instructions the agent runs on. Everything
+        else in the directory — reference documents, prompt fragments, scripts — is packaged
+        alongside it.
+      </p>
+      <pre class="block">---
+name: Code Reviewer
+description: Reviews a diff for correctness bugs, missing test coverage and needless complexity.
+model: reasoning
+tools: [read_file, grep, list_directory, run_tests]
+tags: [review, quality, testing]
+license: Apache-2.0
+---
+
+# Code Reviewer
+
+Read the diff before the surrounding code. Report findings ranked by severity,
+each with the input that triggers the defect...</pre>
+      <p>
+        Only <code>name</code> is required. <code>description</code> falls back to the first
+        paragraph of the body when it is absent, and <code>license</code> falls back to a
+        <code>LICENSE</code> file next to the agent or at the repository root.
+      </p>
+
+      <h2 id="consuming">Consuming an agent</h2>
+      <p>Add the coordinate to your build the way you would any other dependency.</p>
+      <pre class="block" th:text="${mavenSnippet}">maven</pre>
+      <pre class="block" th:text="${gradleSnippet}">gradle</pre>
+      <pre class="block" th:text="${sbtSnippet}">sbt</pre>
+      <p>
+        Because agents are ordinary jars, everything the dependency graph already does applies to
+        them: version pinning, transitive dependencies for agents that build on other agents, and a
+        lockfile that records exactly which revision of an agent a build used.
+      </p>
+
+      <h2 id="extracting">Extracting agents at runtime</h2>
+      <p>
+        Agent runtimes read agents from a directory, so the jars have to be unpacked once at
+        startup. <code>AgentJarsExtractor</code> walks the classpath, finds every jar carrying an
+        agents root, and writes them into one directory.
+      </p>
+      <pre class="block">import com.agentjars.runtime.AgentJarsExtractor;
+
+Path agents = AgentJarsExtractor.create().extractTo(Path.of("build/agents"));
+// build/agents/code-reviewer/AGENT.md
+// build/agents/release-notes/AGENT.md</pre>
+      <p>
+        Each agent keeps its own subdirectory, so two jars contributing agents with the same file
+        names never collide. Entry names that would escape the target directory are rejected rather
+        than written.
+      </p>
+
+      <h2 id="publishing">Publishing your own</h2>
+      <p>
+        Push your agents to a public GitHub repository, then submit it on the
+        <a th:href="@{/deploy}">publish page</a>. The registry shallow-clones the repository, finds
+        every <code>AGENT.md</code>, and packages each one separately.
+      </p>
+      <p>Two rules decide whether a repository can be packaged:</p>
+      <ul>
+        <li>
+          <strong>Agent directories may not nest.</strong> A nested agent would be packaged twice —
+          once on its own and once inside its parent — under two different coordinates, so an
+          overlap fails the run instead of being silently resolved.
+        </li>
+        <li>
+          <strong>Every agent needs a license.</strong> Resolution runs from most specific to least:
+          the front matter, a <code>LICENSE</code> next to the agent, then the repository root. An
+          agent that resolves to nothing is skipped and reported; the rest of the repository still
+          publishes.
+        </li>
+      </ul>
+
+      <h2 id="coordinates">Coordinates and versions</h2>
+      <p>
+        Every AgentJar is published under the group
+        <code th:text="${groupId}">com.agentjars</code>. The artifactId is derived from where the
+        agent came from:
+      </p>
+      <pre class="block">&lt;org&gt;__&lt;repo&gt;__&lt;agent&gt;
+
+myorg/my-agents  +  agents/reviewer   →   myorg__my-agents__reviewer
+myorg/my-agents  +  &lt;repository root&gt; →   myorg__my-agents</pre>
+      <p>
+        Each segment is lowercased and stripped of anything that is not alphanumeric, a hyphen or
+        an underscore. A leading <code>agents/</code> is dropped, so an agent's location in the
+        repository can move between <code>reviewer/</code> and <code>agents/reviewer/</code>
+        without changing its coordinate.
+      </p>
+      <p>
+        Versions are <code>YYYY_MM_DD-&lt;short-commit&gt;</code> — the day the agent was packaged
+        and the commit it was packaged from. That keeps versions sortable and lets any published
+        artifact be traced to an exact revision.
+      </p>
+
+      <h2 id="layout">What is inside a jar</h2>
+      <p>
+        The agent's files are placed under
+        <code th:text="${agentsRoot}">META-INF/agents</code>, in a directory named after the agent:
+      </p>
+      <pre class="block" th:text="${agentsRoot} + '/
+' + ${agentsRoot} + '/agentjars.index
+' + ${agentsRoot} + '/code-reviewer/AGENT.md
+' + ${agentsRoot} + '/code-reviewer/checklist.md
+META-INF/MANIFEST.MF'">layout</pre>
+      <p>
+        The index file marks the jar as an AgentJar so the extractor can find it on a classpath
+        without scanning every jar. The manifest carries the agent name, its root inside the jar
+        and the repository and path it was packaged from.
+      </p>
+
+      <h2 id="api">HTTP API</h2>
+      <p>The registry is readable as JSON for tooling that resolves agents without scraping HTML.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+          <tr>
+            <th scope="col">Endpoint</th>
+            <th scope="col">Returns</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td class="path">GET /api/agents?q=&amp;tag=</td>
+            <td>Every agent, filtered by free text and tag</td>
+          </tr>
+          <tr>
+            <td class="path">GET /api/agents/{artifactId}</td>
+            <td>One agent with its versions and dependency snippets</td>
+          </tr>
+          <tr>
+            <td class="path">GET /api/agents/{artifactId}/{version}/files</td>
+            <td>The file listing of one published jar</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Browse agents')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <h1>Browse agents</h1>
+    <p class="lede" th:text="'Every agent published under ' + ${groupId} + '.'">
+      Every agent in the registry.
+    </p>
+
+    <form class="search" method="get" th:action="@{/agents}">
+      <label class="visually-hidden" for="q">Search agents</label>
+      <input type="search" id="q" name="q" th:value="${query}"
+             placeholder="Search agents by name, description or repository">
+      <input type="hidden" name="tag" th:value="${tag}">
+      <button class="btn" type="submit">Search</button>
+    </form>
+
+    <div class="tag-filter">
+      <a class="tag" th:classappend="${tag == null or tag.isEmpty()} ? 'active'"
+         th:href="@{/agents(q=${query})}">all</a>
+      <a class="tag" th:each="tagName : ${tags}"
+         th:href="@{/agents(q=${query}, tag=${tagName})}"
+         th:classappend="${tagName.equals(tag)} ? 'active'"
+         th:text="${tagName}">tag</a>
+    </div>
+
+    <div class="section-head">
+      <h2>Agents</h2>
+      <span class="count" th:text="${resultCount} + ' of ' + ${totalCount}">0 of 0</span>
+    </div>
+
+    <div class="card-grid" th:if="${!agents.isEmpty()}">
+      <th:block th:each="agent : ${agents}">
+        <div th:replace="~{fragments/layout :: agent-card(${agent})}"></div>
+      </th:block>
+    </div>
+
+    <div class="empty" th:if="${agents.isEmpty()}">
+      <p>No agents match that search.</p>
+      <p><a th:href="@{/agents}">Clear the filters</a> or <a th:href="@{/deploy}">publish one</a>.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

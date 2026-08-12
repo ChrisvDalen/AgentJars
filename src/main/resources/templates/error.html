@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+    <div class="hero">
+      <span class="eyebrow" th:text="${status}">404</span>
+      <h1 th:text="${title}">Not found</h1>
+      <p class="lede" th:text="${detail}">The page you asked for is not part of this registry.</p>
+      <p>
+        <a class="btn" th:href="@{/}">Back to the registry</a>
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

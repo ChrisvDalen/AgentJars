@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Agent definitions on Maven Central')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header(${activeNav})}"></header>
+
+<main>
+  <div class="shell">
+
+    <section class="hero">
+      <span class="eyebrow">com.agentjars</span>
+      <h1>Agents your build tool can resolve.</h1>
+      <p class="lede">
+        AgentJars packages agent definitions as ordinary jars on Maven Central. Declare the agents
+        you want as dependencies, pin them to a version, and let them travel with your project
+        instead of being copied between repositories.
+      </p>
+
+      <form class="search" method="get" th:action="@{/}">
+        <label class="visually-hidden" for="q">Search agents</label>
+        <input type="search" id="q" name="q" th:value="${query}"
+               placeholder="Search agents by name, description or repository">
+        <input type="hidden" name="tag" th:value="${tag}">
+        <button class="btn" type="submit">Search</button>
+      </form>
+
+      <div class="tag-filter">
+        <a class="tag" th:classappend="${tag == null or tag.isEmpty()} ? 'active'" th:href="@{/(q=${query})}">all</a>
+        <a class="tag" th:each="tagName : ${tags}"
+           th:href="@{/(q=${query}, tag=${tagName})}"
+           th:classappend="${tagName.equals(tag)} ? 'active'"
+           th:text="${tagName}">tag</a>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2 th:text="${filtered} ? 'Results' : 'Recently published'">Recently published</h2>
+        <span class="count" th:if="${filtered}"
+              th:text="${resultCount} + ' of ' + ${totalCount} + ' agents'">0 agents</span>
+        <span class="count" th:unless="${filtered}"
+              th:text="${totalCount} + ' agents in the registry'">0 agents</span>
+        <a th:href="@{/agents}" th:unless="${filtered}">Browse all &rarr;</a>
+      </div>
+
+      <div class="card-grid" th:if="${!agents.isEmpty()}">
+        <th:block th:each="agent : ${agents}">
+          <div th:replace="~{fragments/layout :: agent-card(${agent})}"></div>
+        </th:block>
+      </div>
+
+      <div class="empty" th:if="${agents.isEmpty()}">
+        <p>No agents match that search.</p>
+        <p><a th:href="@{/}">Clear the filters</a> or <a th:href="@{/deploy}">publish one</a>.</p>
+      </div>
+    </section>
+
+    <hr>
+
+    <section class="detail-grid">
+      <div class="prose">
+        <h2>How it works</h2>
+        <p>
+          An agent is a directory with an <code>AGENT.md</code> at its root: front matter that says
+          what the agent is for and which tools it expects, followed by the instructions themselves.
+          Point the registry at a public repository and every agent in it is packaged, versioned by
+          date and commit, and published under the
+          <code th:text="${groupId}">com.agentjars</code> group.
+        </p>
+        <p>
+          Consumers add the coordinate to their build. At startup the agent files are extracted
+          from the classpath into one directory, so an agent runtime reads them the same way it
+          would read agents checked into the project.
+        </p>
+        <p><a th:href="@{/docs}">Read the documentation &rarr;</a></p>
+      </div>
+
+      <div>
+        <div class="snippet">
+          <div class="snippet-tabs" role="tablist">
+            <button th:each="tool, iter : ${buildTools}"
+                    type="button"
+                    role="tab"
+                    th:data-tool="${tool.id()}"
+                    th:attr="aria-selected=${iter.first}"
+                    th:text="${tool.label()}">Maven</button>
+          </div>
+          <pre th:each="tool, iter : ${buildTools}"
+               th:data-tool="${tool.id()}"
+               th:hidden="${!iter.first}"
+               th:text="${exampleSnippets.get(tool.id())}">snippet</pre>
+          <div class="copy-row"><button type="button" data-copy>copy</button></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: snippet-script}"></script>
+</body>
+</html>
