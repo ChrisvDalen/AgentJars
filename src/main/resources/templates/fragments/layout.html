@@ -23,7 +23,7 @@
       AgentJars
     </a>
     <nav class="site-nav">
-      <a th:href="@{/}" th:classappend="${active == 'browse'} ? 'active'">Browse</a>
+      <a th:href="@{/agents}" th:classappend="${active == 'browse'} ? 'active'">Browse</a>
       <a th:href="@{/docs}" th:classappend="${active == 'docs'} ? 'active'">Docs</a>
       <a th:href="@{/deploy}" th:classappend="${active == 'deploy'} ? 'active'">Publish</a>
       <a href="https://github.com/ChrisvDalen/AgentJars" rel="noopener">Source</a>
@@ -36,13 +36,16 @@
     <span>AgentJars — agent definitions, versioned and resolved by your build tool.</span>
     <nav>
       <a th:href="@{/docs}">Docs</a>
-      <a th:href="@{/api/agents}">API</a>
+      <a th:href="${staticSite} ? @{/api/agents.json} : @{/api/agents}">API</a>
       <a th:href="@{/deploy}">Publish</a>
     </nav>
   </div>
 </footer>
 
-<div th:fragment="agent-card(agent)" class="card">
+<div th:fragment="agent-card(agent)" class="card"
+     data-agent
+     th:attr="data-search=${#strings.toLowerCase(agent.displayName() + ' ' + agent.artifactId() + ' ' + agent.description() + ' ' + (agent.sourceRepo() ?: '') + ' ' + #strings.listJoin(agent.tags(), ' '))},
+              data-tags=${#strings.toLowerCase(#strings.listJoin(agent.tags(), ' '))}">
   <h3><a th:href="@{'/agents/' + ${agent.artifactId()}}" th:text="${agent.displayName()}">Agent</a></h3>
   <span class="artifact" th:text="${agent.artifactId()}">artifact</span>
   <p th:text="${agent.description()}">Description</p>

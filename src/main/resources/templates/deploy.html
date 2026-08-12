@@ -17,12 +17,24 @@
       </p>
     </div>
 
-    <div class="notice" th:unless="${deployEnabled}">
+    <div class="notice" th:if="${staticSite}">
+      <p><strong>This is a read-only copy of the registry.</strong></p>
+      <p>
+        Packaging a repository means cloning it and building jars, which a static host cannot do.
+        Run the registry yourself to publish — the browse, search and dependency snippets on this
+        site work exactly the same either way.
+      </p>
+      <pre class="block">git clone https://github.com/ChrisvDalen/AgentJars.git
+cd AgentJars
+./mvnw spring-boot:run          # then open http://localhost:8080/deploy</pre>
+    </div>
+
+    <div class="notice" th:if="${!staticSite and !deployEnabled}">
       <p><strong>Publishing is turned off on this instance.</strong></p>
       <p>Set <code>agentjars.deploy.enabled=true</code> to accept submissions.</p>
     </div>
 
-    <form class="search" method="post" th:action="@{/deploy}">
+    <form class="search" method="post" th:action="@{/deploy}" th:unless="${staticSite}">
       <label class="visually-hidden" for="repository">GitHub repository</label>
       <input type="text" class="field" id="repository" name="repository" th:value="${repository}"
              placeholder="myorg/my-agents  or  https://github.com/myorg/my-agents" required>

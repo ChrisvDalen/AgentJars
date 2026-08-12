@@ -1,6 +1,5 @@
 package com.agentjars.web;
 
-import com.agentjars.config.AgentJarsProperties;
 import com.agentjars.deploy.DeployResult;
 import com.agentjars.deploy.DeployService;
 import org.slf4j.Logger;
@@ -18,28 +17,22 @@ public class DeployController {
     private static final Logger log = LoggerFactory.getLogger(DeployController.class);
 
     private final DeployService deployService;
-    private final AgentJarsProperties properties;
+    private final PageModel pages;
 
-    public DeployController(DeployService deployService, AgentJarsProperties properties) {
+    public DeployController(DeployService deployService, PageModel pages) {
         this.deployService = deployService;
-        this.properties = properties;
+        this.pages = pages;
     }
 
     @GetMapping("/deploy")
     public String form(@RequestParam(required = false) String repository, Model model) {
-        model.addAttribute("repository", repository);
-        model.addAttribute("deployEnabled", properties.deploy().isEnabled());
-        model.addAttribute("groupId", properties.groupId());
-        model.addAttribute("activeNav", "deploy");
+        model.addAllAttributes(pages.deploy(repository));
         return "deploy";
     }
 
     @PostMapping("/deploy")
     public String deploy(@RequestParam String repository, Model model) {
-        model.addAttribute("repository", repository);
-        model.addAttribute("deployEnabled", properties.deploy().isEnabled());
-        model.addAttribute("groupId", properties.groupId());
-        model.addAttribute("activeNav", "deploy");
+        model.addAllAttributes(pages.deploy(repository));
         try {
             DeployResult result = deployService.deploy(repository);
             model.addAttribute("result", result);

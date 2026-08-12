@@ -1,0 +1,65 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  # Maven Central is the system of record, so a scheduled rebuild is what keeps the published
+  # site current — nothing about a static host can poll it at request time.
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deployment half-way; queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # Resolves base_path for us: "/<repo>" for a project site, "" once a custom domain is set.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        run: ./mvnw -B -DskipTests package
+
+      - name: Generate the static site
+        run: |
+          JAR=$(ls target/agentjars-webapp-*.jar | head -1)
+          java -jar "$JAR" \
+            --spring.main.web-application-type=none \
+            --agentjars.static.output=target/site \
+            --agentjars.static.base-path='${{ steps.pages.outputs.base_path }}'
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

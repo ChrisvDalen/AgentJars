@@ -8,7 +8,7 @@
   <div class="shell">
 
     <section class="hero">
-      <span class="eyebrow">com.agentjars</span>
+      <span class="eyebrow" th:text="${groupId}">com.agentjars</span>
       <h1>Agents your build tool can resolve.</h1>
       <p class="lede">
         AgentJars packages agent definitions as ordinary jars on Maven Central. Declare the agents
@@ -16,31 +16,25 @@
         instead of being copied between repositories.
       </p>
 
-      <form class="search" method="get" th:action="@{/}">
+      <form class="search" method="get" th:action="@{/agents}">
         <label class="visually-hidden" for="q">Search agents</label>
-        <input type="search" id="q" name="q" th:value="${query}"
+        <input type="search" id="q" name="q"
                placeholder="Search agents by name, description or repository">
-        <input type="hidden" name="tag" th:value="${tag}">
         <button class="btn" type="submit">Search</button>
       </form>
 
       <div class="tag-filter">
-        <a class="tag" th:classappend="${tag == null or tag.isEmpty()} ? 'active'" th:href="@{/(q=${query})}">all</a>
         <a class="tag" th:each="tagName : ${tags}"
-           th:href="@{/(q=${query}, tag=${tagName})}"
-           th:classappend="${tagName.equals(tag)} ? 'active'"
+           th:href="@{/agents(tag=${tagName})}"
            th:text="${tagName}">tag</a>
       </div>
     </section>
 
     <section>
       <div class="section-head">
-        <h2 th:text="${filtered} ? 'Results' : 'Recently published'">Recently published</h2>
-        <span class="count" th:if="${filtered}"
-              th:text="${resultCount} + ' of ' + ${totalCount} + ' agents'">0 agents</span>
-        <span class="count" th:unless="${filtered}"
-              th:text="${totalCount} + ' agents in the registry'">0 agents</span>
-        <a th:href="@{/agents}" th:unless="${filtered}">Browse all &rarr;</a>
+        <h2>Recently published</h2>
+        <span class="count" th:text="${totalCount} + ' agents in the registry'">0 agents</span>
+        <a th:href="@{/agents}">Browse all &rarr;</a>
       </div>
 
       <div class="card-grid" th:if="${!agents.isEmpty()}">
@@ -50,8 +44,8 @@
       </div>
 
       <div class="empty" th:if="${agents.isEmpty()}">
-        <p>No agents match that search.</p>
-        <p><a th:href="@{/}">Clear the filters</a> or <a th:href="@{/deploy}">publish one</a>.</p>
+        <p>The registry has no agents yet.</p>
+        <p><a th:href="@{/deploy}">Publish the first one</a>.</p>
       </div>
     </section>
 

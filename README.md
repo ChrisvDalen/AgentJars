@@ -53,6 +53,47 @@ docker build -t agentjars .
 docker run --rm -p 8080:8080 agentjars
 ```
 
+## Deploying
+
+### GitHub Pages (read-only)
+
+The registry renders to a directory of static files, which `.github/workflows/pages.yml` publishes
+to GitHub Pages on every push to `main`, on a daily schedule, and on demand.
+
+```bash
+./mvnw -B -DskipTests package
+java -jar target/agentjars-webapp-*.jar \
+  --spring.main.web-application-type=none \
+  --agentjars.static.output=target/site \
+  --agentjars.static.base-path=/AgentJars
+```
+
+**One-time setup:** in the repository's *Settings → Pages*, set **Source** to **GitHub Actions**.
+The workflow cannot enable Pages for you.
+
+The base path is resolved by `actions/configure-pages`, so it is `/<repository>` for a project
+site and empty once a custom domain is configured — no change needed either way.
+
+What carries over, and what does not:
+
+| | Static site | Running the app |
+| --- | --- | --- |
+| Browse, tag filter, search | ✅ (filtered in the browser) | ✅ |
+| Detail pages, version history | ✅ | ✅ |
+| Dependency snippets + copy button | ✅ | ✅ |
+| Jar file listings | ✅ (as of the last build) | ✅ (live) |
+| JSON API | ✅ at `/api/agents.json` | ✅ at `/api/agents` |
+| Catalog freshness | rebuilt daily by the workflow | live, cached for an hour |
+| **Publishing an agent** | ❌ needs a server | ✅ |
+
+Publishing is the only thing a static host cannot do: packaging means cloning a repository and
+building jars. The publish page says so and points at running the registry locally.
+
+### As a server
+
+Anywhere that runs a container — see the Dockerfile below. That gives you the publish flow and a
+catalog read live from Maven Central.
+
 ## The AGENT.md format
 
 ```markdown
@@ -144,8 +185,12 @@ src/main/java/com/agentjars/
 ├── model/       coordinates, versions, manifests, repository references
 ├── packaging/   AGENT.md parsing, scanning, license resolution, jar building
 ├── runtime/     AgentJarsExtractor — the consumer-side classpath extractor
-└── web/         controllers for the site and the JSON API
+├── staticsite/  rendering the registry to files for a static host
+└── web/         controllers, and the page models both renderers share
 ```
+
+Both renderers take their model from `web/PageModel`, so a change to a page cannot reach the live
+site without also reaching the static build.
 
 ## License
 

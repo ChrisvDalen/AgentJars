@@ -51,6 +51,13 @@
   box-sizing: border-box;
 }
 
+/* A `display` declaration in a class beats the user agent's `[hidden] { display: none }`, so
+   anything laid out as flex or grid stays visible when hidden. The filtering script and the
+   snippet tabs both rely on the attribute, so it has to win. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--bg);

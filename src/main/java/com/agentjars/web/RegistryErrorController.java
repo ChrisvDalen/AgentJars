@@ -11,23 +11,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class RegistryErrorController implements ErrorController {
 
+    static final String DEFAULT_DETAIL = "The page you asked for is not part of this registry.";
+
+    private final PageModel pages;
+
+    public RegistryErrorController(PageModel pages) {
+        this.pages = pages;
+    }
+
     @RequestMapping("/error")
     public String handle(HttpServletRequest request, Model model) {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         Object message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
         int code = status instanceof Integer value ? value : 500;
+        String detail = message == null || message.toString().isBlank()
+                ? DEFAULT_DETAIL
+                : message.toString();
 
-        model.addAttribute("status", code);
-        model.addAttribute("title", switch (code) {
+        model.addAllAttributes(pages.error(code, titleFor(code), detail));
+        return "error";
+    }
+
+    static String titleFor(int status) {
+        return switch (status) {
             case 404 -> "Not found";
             case 400 -> "Bad request";
             case 403 -> "Forbidden";
             default -> "Something went wrong";
-        });
-        model.addAttribute("detail", message == null || message.toString().isBlank()
-                ? "The page you asked for is not part of this registry."
-                : message.toString());
-        model.addAttribute("activeNav", "");
-        return "error";
+        };
     }
 }
