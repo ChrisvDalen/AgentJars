@@ -1,5 +1,5 @@
 # Build
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /workspace
 
 # Resolve dependencies first so a source-only change reuses the cached layer.
@@ -12,7 +12,7 @@ RUN ./mvnw -B -q -DskipTests package \
     && cp target/agentjars-webapp-*.jar app.jar
 
 # Run
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 
 # The deploy endpoint clones repositories and writes bundles; give it a writable home.
