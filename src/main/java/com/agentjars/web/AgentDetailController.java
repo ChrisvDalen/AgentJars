@@ -28,8 +28,8 @@ public class AgentDetailController {
 
     @GetMapping("/agents/{artifactId}")
     public String detail(
-            @PathVariable String artifactId,
-            @RequestParam(required = false) String version,
+            @PathVariable("artifactId") String artifactId,
+            @RequestParam(name = "version", required = false) String version,
             Model model) {
         AgentJar agent = require(artifactId);
         model.addAllAttributes(pages.agent(agent, resolveVersion(agent, version)));
@@ -38,7 +38,8 @@ public class AgentDetailController {
 
     @GetMapping("/agents/{artifactId}/{version}/files")
     public String files(
-            @PathVariable String artifactId, @PathVariable String version, Model model) {
+            @PathVariable("artifactId") String artifactId,
+            @PathVariable("version") String version, Model model) {
         AgentJar agent = require(artifactId);
         requireVersion(agent, version);
         model.addAllAttributes(pages.files(agent, version, catalog.listFiles(artifactId, version)));

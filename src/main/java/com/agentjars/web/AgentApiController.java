@@ -32,8 +32,8 @@ public class AgentApiController {
 
     @GetMapping("/agents")
     public Map<String, Object> list(
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String tag) {
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "tag", required = false) String tag) {
         List<AgentJar> agents = catalog.search(q, tag);
         return Map.of(
                 "groupId", properties.groupId(),
@@ -42,7 +42,7 @@ public class AgentApiController {
     }
 
     @GetMapping("/agents/{artifactId}")
-    public Map<String, Object> detail(@PathVariable String artifactId) {
+    public Map<String, Object> detail(@PathVariable("artifactId") String artifactId) {
         AgentJar agent = catalog.findByArtifactId(artifactId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "No agent published as %s:%s".formatted(properties.groupId(), artifactId)));
@@ -66,7 +66,8 @@ public class AgentApiController {
     }
 
     @GetMapping("/agents/{artifactId}/{version}/files")
-    public Map<String, Object> files(@PathVariable String artifactId, @PathVariable String version) {
+    public Map<String, Object> files(@PathVariable("artifactId") String artifactId,
+            @PathVariable("version") String version) {
         List<JarFileEntry> entries = catalog.listFiles(artifactId, version);
         return Map.of(
                 "artifactId", artifactId,

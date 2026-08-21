@@ -25,13 +25,13 @@ public class DeployController {
     }
 
     @GetMapping("/deploy")
-    public String form(@RequestParam(required = false) String repository, Model model) {
+    public String form(@RequestParam(name = "repository", required = false) String repository, Model model) {
         model.addAllAttributes(pages.deploy(repository));
         return "deploy";
     }
 
     @PostMapping("/deploy")
-    public String deploy(@RequestParam String repository, Model model) {
+    public String deploy(@RequestParam("repository") String repository, Model model) {
         model.addAllAttributes(pages.deploy(repository));
         try {
             DeployResult result = deployService.deploy(repository);

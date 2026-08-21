@@ -28,8 +28,8 @@ public class HomeController {
      */
     @GetMapping("/agents")
     public String agents(
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String tag,
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "tag", required = false) String tag,
             Model model) {
         model.addAllAttributes(pages.agents(q, tag));
         return "agents";
