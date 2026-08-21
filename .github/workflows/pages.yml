@@ -35,7 +35,7 @@ jobs:
       # Resolves base_path for us: "/<repo>" for a project site, "" once a custom domain is set.
       - name: Configure Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build
         run: ./mvnw -B -DskipTests package
