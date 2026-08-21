@@ -164,6 +164,6 @@ depends on nothing but the JDK so it can be lifted into a standalone library.
 
 ## 11. Technical stack
 
-Java 21, Spring Boot 4 (Spring MVC, Thymeleaf, caching, actuator), Eclipse JGit for cloning, and
+Java 26, Spring Boot 4.1 (Spring MVC, Thymeleaf, caching, actuator), Eclipse JGit for cloning, and
 hand-written CSS with no build step. Storage is in-memory only: Maven Central is the system of
 record.

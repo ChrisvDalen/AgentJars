@@ -35,7 +35,7 @@ The web application behind the registry:
 
 ## Running it
 
-Requires Java 21.
+Requires Java 26.
 
 ```bash
 ./mvnw spring-boot:run                                  # http://localhost:8080

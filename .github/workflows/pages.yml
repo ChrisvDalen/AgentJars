@@ -23,13 +23,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
+      - name: Set up Java 26
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "26"
           cache: maven
 
       # Resolves base_path for us: "/<repo>" for a project site, "" once a custom domain is set.
@@ -49,7 +49,7 @@ jobs:
             --agentjars.static.base-path='${{ steps.pages.outputs.base_path }}'
 
       - name: Upload the site
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: target/site
 
