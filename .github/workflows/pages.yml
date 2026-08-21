@@ -49,7 +49,7 @@ jobs:
             --agentjars.static.base-path='${{ steps.pages.outputs.base_path }}'
 
       - name: Upload the site
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: target/site
 
