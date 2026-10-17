@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <relativePath/>
   </parent>
 
@@ -25,9 +25,9 @@
   </licenses>
 
   <properties>
-    <java.version>26</java.version>
-    <maven.compiler.release>26</maven.compiler.release>
-    <jgit.version>7.7.1.202607240634-r</jgit.version>
+    <java.version>25</java.version>
+    <maven.compiler.release>25</maven.compiler.release>
+    <jgit.version>7.8.0.202609011348-r</jgit.version>
   </properties>
 
   <dependencies>
