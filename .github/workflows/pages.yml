@@ -26,16 +26,16 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Java 26
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: "26"
+          java-version: "25"
           cache: maven
 
       # Resolves base_path for us: "/<repo>" for a project site, "" once a custom domain is set.
       - name: Configure Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build
         run: ./mvnw -B -DskipTests package
@@ -49,7 +49,7 @@ jobs:
             --agentjars.static.base-path='${{ steps.pages.outputs.base_path }}'
 
       - name: Upload the site
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: target/site
 
@@ -62,4 +62,4 @@ jobs:
     steps:
       - name: Deploy to Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
